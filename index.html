@@ -1,0 +1,203 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bài 8 | Mô hình máy phát điện gió</title>
+<style>
+:root{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#193f49;background:#f0f8f7}*{box-sizing:border-box}body{margin:0}header{background:linear-gradient(110deg,#087baf,#12a4b4);color:#fff;padding:20px 24px}header .wrap{max-width:1450px;margin:auto}header h1{margin:3px 0 5px;font-size:clamp(22px,3vw,32px)}header p{margin:0}.wrap{max-width:1450px;margin:18px auto;padding:0 18px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.steps{display:flex;gap:8px;flex-wrap:wrap}.step,.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:750;cursor:pointer}.step{background:#fff;color:#285d65;border:1px solid #bddad8}.step.active,.btn.primary{background:#087fa0;color:white}.step:disabled,.btn:disabled{opacity:.45;cursor:not-allowed}.btn{background:#e2f0ee;color:#245961}.layout{display:grid;grid-template-columns:270px minmax(360px,1fr) 330px;gap:14px;margin-top:15px}.panel{background:#fff;border:1px solid #d2e6e4;border-radius:16px;overflow:hidden;box-shadow:0 8px 25px #1a6c6a0a}.panel h2{font-size:17px;margin:0;padding:17px 16px 8px}.parts{display:grid;gap:8px;padding:10px 12px 15px;overflow-y:auto;min-height:0;flex:1;align-content:start}.layout>section.panel:first-child{height:570px;display:flex;flex-direction:column;min-height:0}.layout>section.panel:first-child h2,.layout>section.panel:first-child .notice{flex-shrink:0}.part{display:flex;align-items:center;gap:10px;padding:10px;background:#f4faf9;border:2px solid transparent;border-radius:11px;cursor:grab;user-select:none;touch-action:none}.part:focus-visible,.part.selected{outline:0;border-color:#029ab0;background:#e6f8f9}.part.done{opacity:.55;cursor:default}.part .symbol{font-size:23px;width:32px;text-align:center}.part b{display:block;font-size:13px}.part small{display:block;color:#57747b;font-size:11px}.part.locked{opacity:.48;cursor:not-allowed}.viewer{height:570px;position:relative;background:radial-gradient(ellipse at 50% 40%,#fff,#e6f5f3 85%);touch-action:none}.viewer canvas{display:block;width:100%;height:100%}.overlay{position:absolute;pointer-events:none;bottom:10px;left:10px;background:#ffffffdf;border-radius:9px;padding:8px;font-size:12px;color:#486d73}.viewbuttons{position:absolute;right:10px;top:10px;display:flex;gap:6px}.viewbuttons button{border:1px solid #b8d7d7;background:#fff;border-radius:8px;padding:8px;cursor:pointer}.guide{padding:0 17px 18px}.guide h3{color:#067c9c;font-size:18px;margin:14px 0 8px}.guide p{font-size:14px;line-height:1.6}.callout{background:#fff5d8;border-radius:10px;padding:12px;font-size:13px;line-height:1.55}.status{background:#e7f6ee;color:#175f49;border-radius:10px;padding:12px;margin-top:12px;min-height:65px;font-size:13px;line-height:1.55}.progress{height:9px;background:#dcecea;border-radius:12px;overflow:hidden;margin:13px 0}.bar{height:100%;background:#21af86;transition:width .25s}.controls{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.wind{display:none;margin-top:14px;border-top:1px solid #e4eeee;padding-top:13px}.wind label{font-weight:700;font-size:14px}.wind input{width:100%;margin:12px 0}.reading{font-size:13px;color:#116c83;font-weight:700}.results{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}.results th,.results td{border:1px solid #c6e1e1;padding:7px;text-align:left}.results th{background:#e5f6fa}.results td:nth-child(2){text-align:center}.finish{display:none;margin-top:12px;background:#ecf9ed;padding:12px;border-radius:10px}.foot{font-size:12px;color:#56787c;margin:16px 0 25px}.counter{font-size:12px;color:#52787d}.ref{margin:8px 0 0;font-size:12px;color:#617c82}.check{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin-top:10px}.check input{margin-top:3px}.notice{font-size:12px;color:#54727a;padding:0 14px 12px}.hidden{display:none!important}@media(max-width:1150px){.layout{grid-template-columns:250px 1fr}.guide-panel{grid-column:1/-1}}@media(max-width:680px){.layout>section.panel:first-child{height:min(430px,65vh)}.layout{grid-template-columns:1fr}.viewer{height:420px}.parts{grid-template-columns:1fr 1fr}.part{padding:7px}.top{align-items:stretch}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"}}</script>
+</head><body><header><div class="wrap" style="margin:0 auto;padding:0"><p>CÔNG NGHỆ • BÀI 8</p><h1>Mô hình máy phát điện gió</h1><p>Thực hành lắp ráp và kiểm tra hoạt động của mô hình</p></div></header><main class="wrap"><div class="top"><nav class="steps" id="steps" aria-label="Các bước thực hành"></nav><button class="btn" id="reset">↻ Thực hiện lại từ đầu</button></div><div class="layout"><section class="panel"><h2>Chi tiết, vật liệu và dụng cụ</h2><div class="parts" id="parts"></div><p class="notice" id="partsNote">Kéo chi tiết vào vị trí chỉ dẫn. Chỉ lắp chi tiết đang được hướng dẫn. Kéo chi tiết vào hình gợi ý tại vị trí cố định.</p></section><section class="panel"><div class="viewer" id="viewer"><div class="viewbuttons"><button id="homeView" title="Đưa góc nhìn về ban đầu">⌂ Góc nhìn</button></div><div class="overlay">Kéo nền để xoay • Kéo chi tiết từ danh sách vào mô hình • Kéo chi tiết cuối cùng về danh sách để tháo • Nhấn cánh quạt để quay</div></div></section><section class="panel guide-panel"><div class="guide"><h3 id="title"></h3><p id="description"></p><div class="callout" id="task"></div><p class="ref" id="reference"></p><div class="progress"><div class="bar" id="bar"></div></div><div class="counter" id="counter"></div><div class="status" id="status" role="status" aria-live="polite"></div><div class="wind" id="wind"><label for="speed">Điều chỉnh tốc độ gió</label><input type="range" id="speed" min="0" max="2" step="1" value="0"><div class="reading" id="reading"></div><table class="results"><thead><tr><th>Điều kiện tốc độ gió</th><th>Trạng thái của đèn LED</th></tr></thead><tbody id="observations"></tbody></table><label class="check"><input type="checkbox" id="inspection"> <span>Em đã kiểm tra các mối ghép và vị trí nối dây dẫn điện.</span></label><div class="finish" id="finish">✓ Em đã hoàn thành các bước lắp ráp và kiểm tra mô hình máy phát điện gió.</div></div><div class="controls"><button class="btn" id="back">← Bước trước</button><button class="btn primary" id="next" disabled>Bước tiếp theo →</button><button class="btn hidden" id="complete">Hoàn thành thực hành ✓</button></div></div></section></div><p class="foot">Đây là mô phỏng giáo dục 3D dựa trên Bài 8 (Hình 3–6). Một số chi tiết, lỗ lắp ghép, ốc vít và hiệu ứng phát điện được mô phỏng để phù hợp thao tác trên màn hình. Khi thực hành với bộ dụng cụ thật, em cần làm theo hướng dẫn của giáo viên và sách giáo khoa.</p></main>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const $=id=>document.getElementById(id),viewer=$('viewer');
+const scene=new THREE.Scene();scene.background=new THREE.Color('#e8f6f4');
+const camera=new THREE.PerspectiveCamera(42,1,.1,100),renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));viewer.prepend(renderer.domElement);
+const orbit=new OrbitControls(camera,renderer.domElement);orbit.enableDamping=true;orbit.minDistance=5;orbit.maxDistance=19;orbit.target.set(0,1.8,0);
+function home(){camera.position.set(7,6.2,10);orbit.target.set(0,1.9,0);orbit.update()}home();$('homeView').onclick=home;
+scene.add(new THREE.HemisphereLight(0xffffff,0x9ba9a2,2));const sun=new THREE.DirectionalLight(0xffffff,2.5);sun.position.set(5,9,7);scene.add(sun);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(50,50),new THREE.MeshStandardMaterial({color:'#e8f6f4'}));ground.rotation.x=-Math.PI/2;ground.position.y=-.18;scene.add(ground);
+const mat=(c,metal=0)=>new THREE.MeshStandardMaterial({color:c,roughness:.48,metalness:metal});
+const green=mat('#168e77'),yellow=mat('#f4c52c'),red=mat('#d94742'),blue=mat('#078ec5'),steel=mat('#9daab2',.55),dark=mat('#283b42'),rubber=mat('#222e36'),white=mat('#f8f7e9');
+const ledOff=mat('#d82934'),ledOn=new THREE.MeshStandardMaterial({color:'#ff4040',emissive:'#ff2020',emissiveIntensity:2.4});
+const ghostMat=new THREE.MeshStandardMaterial({color:'#19c5b5',emissive:'#00c9c1',emissiveIntensity:.8,transparent:true,opacity:.38,depthWrite:false});
+function group(){return new THREE.Group()}
+function box(g,w,h,d,m,x=0,y=0,z=0){let o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);g.add(o);return o}
+function cyl(g,r,h,m,x=0,y=0,z=0,axis='y'){let o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,16),m);o.position.set(x,y,z);if(axis==='x')o.rotation.z=Math.PI/2;if(axis==='z')o.rotation.x=Math.PI/2;g.add(o);return o}
+function wire(g,points,m,r=.034){let mesh=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p))),42,r,8,false),m);g.add(mesh);return mesh}
+function perforated(g,verticalLength,m,axis='y',n=8){ // perforated construction strip with visible metal-rimmed holes
+ if(axis==='y'){box(g,.27,verticalLength,.24,m,0,verticalLength/2,0);for(let i=0;i<n;i++)cyl(g,.058,.285,dark,0,.22+i*(verticalLength-.44)/Math.max(1,n-1),0,'x')}
+ else{box(g,verticalLength,.22,.26,m);for(let i=0;i<n;i++)cyl(g,.059,.29,dark,-verticalLength/2+.17+i*(verticalLength-.34)/Math.max(1,n-1),0,0,'z')}
+}
+function plate(){const g=group();box(g,5.25,.22,3.55,green); // folded long sides, not a solid block
+ for(let z of [-1.68,1.68])box(g,5.25,.52,.16,green,0,-.32,z);
+ for(let x=-2.35;x<=2.36;x+=.36)for(let z=-1.42;z<=1.43;z+=.36)cyl(g,.047,.014,dark,x,.119,z);
+ for(let x=-2.3;x<=2.31;x+=.38)for(let z of [-1.69,1.69])box(g,.16,.12,.015,white,x,-.29,z+(z>0?.084:-.084));return g}
+// Thanh U dài: chân và đầu đều gập về +Z, song song và cùng hướng.
+// Điểm đặt gốc là mặt trên tấm lớn; lỗ trên đầu U nhận thanh đỏ 3 lỗ.
+function tall(){
+ let g=group();perforated(g,3.38,yellow,'y',9);
+ box(g,.29,.16,.94,yellow,0,.10,.40); // chân dưới
+ box(g,.29,.16,.94,yellow,0,3.34,.40); // đầu trên nhô ra, cùng hướng với chân
+ for(const y of [.19,3.43])for(const z of [.42,.71])cyl(g,.057,.19,dark,0,y,z);
+ return g;
+}
+// Thanh U ngắn thứ hai đứng trên thanh đỏ, không nằm ngang/lơ lửng.
+// Cả hai thanh chữ U đều có chân và đầu nhô ra song song theo +Z.
+function upperShortU(){let g=group();perforated(g,.82,yellow,'y',3);
+ box(g,.27,.15,.50,yellow,0,.075,.22);box(g,.27,.15,.50,yellow,0,.82,.22);
+ for(const y of [.16,.91])cyl(g,.052,.012,dark,0,y,.35);
+ return g;}
+function low(){let g=group();perforated(g,1.65,yellow,'y',5);
+ box(g,.29,.16,.78,yellow,0,.09,.32);box(g,.29,.16,.78,yellow,0,1.62,.32);
+ for(const y of [.17,1.70])cyl(g,.053,.012,dark,0,y,.42);return g;}
+// Hai thanh chữ L đỏ: phần đứng bắt vào hai lỗ ngoài của thanh đỏ phía SAU.
+// Phần chân của mỗi thanh L vươn về +Z, song song với đầu/chân các thanh U vàng.
+// Hai chân tạo thành hai ray đỡ thân máy phát điện (không phải hai cột ôm máy).
+function angle(){let g=group();
+ box(g,.26,.94,.24,red,0,0,0); // thân đứng dài hơn chân nhô ra
+ box(g,.26,.16,.46,red,0,-.39,.23); // chân ngắn ở dưới, hướng +Z song song chân U vàng
+ cyl(g,.055,.015,dark,0,-.34,.18);cyl(g,.055,.015,dark,0,-.34,.37);
+ return g;}
+// Thanh đỏ 3 lỗ: mặt có lỗ hướng lên, vít đi theo phương thẳng đứng.
+function brace(){let g=group();box(g,1.24,.14,.28,red);
+ for(const x of [-.48,0,.48])cyl(g,.06,.012,dark,x,.078,0);return g;}
+function screw(){let g=group(); // gốc đặt tại mặt ghép: đầu vít sát mặt, thân xuyên xuống trong chi tiết
+ cyl(g,.055,.34,steel,0,-.19,0,'y');cyl(g,.115,.045,steel,0,.018,0,'y');box(g,.12,.008,.018,dark,0,.043,0);return g;}
+function rearScrew(){let g=screw();g.rotation.x=-Math.PI/2;return g;} // đầu vít ở mặt sau, thân vít đi VÀO mối ghép theo +Z
+function led(){let g=group();cyl(g,.14,.33,ledOff,0,.16,0);const dome=new THREE.Mesh(new THREE.SphereGeometry(.14,12,10),ledOff);dome.position.y=.31;g.add(dome);dome.userData.isLED=true;for(let [x,h] of [[-.07,.4],[.07,.29]])box(g,.024,h,.025,steel,x,-h/2,0);return g}
+function lead(color){let g=group(),m=color==='red'?red:dark;wire(g,[[0,0,0],[.15,-.24,.03],[.5,-.35,.06],[.8,-.25,.07]],m,.047);return g}
+function tape(){let g=group();box(g,.29,.15,.25,rubber);return g}
+function generator(){let g=group(); // horizontal silver motor and a front-facing four-blade rotor
+ cyl(g,.34,.88,steel,0,0,0,'z');cyl(g,.38,.09,dark,0,0,-.47,'z');cyl(g,.21,.17,steel,0,0,.51,'z');
+ const rotor=group();rotor.position.z=.65;
+ for(let i=0;i<4;i++){const a=i*Math.PI/2;const blade=box(rotor,.37,1.23,.075,blue,0,.75,0);blade.rotation.z=-a;blade.position.set(-Math.sin(a)*.75,Math.cos(a)*.75,0);blade.rotation.y=.13}
+ cyl(rotor,.21,.14,blue,0,0,.07,'z');g.add(rotor);g.userData.rotor=rotor;rotor.traverse(o=>{if(o.isMesh)o.userData.isRotor=true});return g}
+function adhesive(){let g=group();box(g,.46,.12,.23,white);return g}
+// The physical textbook photo shows two high supports, one low LED support, a horizontal motor,
+// and the cable looping down from the motor to the LED at the top of the short support.
+// All installation coordinates are immutable: no arbitrary placement or dragging of installed pieces.
+// Toạ độ là các lỗ ghép cố định: vít đi từ trên xuống theo trục Y.
+// Hai đầu U dài ở x=-.58,+.42; cùng hướng +Z, đỡ thanh đỏ phía trên.
+const targets={plate:[0,0,0],longA:[-.58,.12,-.50],longB:[.42,.12,-.50],
+ braceA:[-.08,3.59,-.10],boltA:[-.56,3.67,-.10],boltB:[.40,3.67,-.10],
+ shortB:[-.08,3.68,-.32],boltC:[-.08,3.84,-.10],
+ // Thanh ngang đỏ thứ hai ở SAU thân chữ U ngắn (âm Z), không đặt lên đầu.
+ // Lỗ giữa nằm ngay sau thân U, hai lỗ ngoài làm điểm bắt hai thanh L.
+ braceB:[-.08,4.15,-.58],boltD:[-.08,4.15,-.73],
+ angleA:[-.56,4.15,-.58],angleB:[.40,4.15,-.58],
+ boltE:[-.56,4.15,-.74],boltF:[.40,4.15,-.74],
+ shortA:[1.64,.12,.73],
+ led:[-3.12,1.3,1.0],redWire:[-2.98,.92,1.0],blackWire:[-2.85,.68,1.0],tape:[-3.10,.58,1.0],
+ generator:[-.08,4.23,.46],mountLED:[1.64,1.89,.73],adhesive:[1.64,1.79,.73]};
+const makers={plate,longA:tall,longB:tall,shortA:low,shortB:upperShortU,
+ angleA:angle,angleB:angle,braceA:brace,braceB:brace,
+ boltA:screw,boltB:screw,boltC:screw,boltD:rearScrew,boltE:rearScrew,boltF:rearScrew,
+ led,redWire:()=>lead('red'),blackWire:()=>lead('black'),tape,generator,mountLED:led,adhesive};
+const stages=[
+{title:'Bước 1. Lắp khung giá đỡ',description:'Dùng hai thanh chữ U dài, hai thanh chữ U ngắn, hai thanh chữ L dài và hai thanh thẳng 3 lỗ lắp vào tấm lớn để tạo thành khung giá đỡ.',task:'Đặt thanh đỏ 3 lỗ lên hai đầu nhô ra của hai thanh chữ U dài, bắt vít từ trên xuống. Ghép chân thanh chữ U ngắn vào lỗ giữa thanh đỏ. Lắp thanh đỏ 3 lỗ thứ hai nằm ngang phía sau thân thanh U ngắn bằng lỗ giữa (không đặt trên đầu). Gắn hai thanh chữ L đỏ vào hai lỗ ngoài; hướng hai chân dưới của thanh L về phía trước, song song với các phần nhô ra của thanh U vàng để tạo bệ đỡ máy phát điện. Cuối cùng lắp thanh U dài còn lại làm giá đỡ đèn LED.',reference:'Theo Hình 4 và Hình 6 – sách giáo khoa.',parts:[
+ ['plate','Tấm lớn','🟩','Nền lắp ráp'],
+ ['longA','Thanh chữ U dài (1)','🟨','Chân và đầu gập song song'],
+ ['longB','Thanh chữ U dài (2)','🟨','Song song thanh thứ nhất'],
+ ['braceA','Thanh thẳng đỏ 3 lỗ (1)','🟥','Gác lên hai đầu chữ U dài'],
+ ['boltA','Vít trên thanh U dài bên trái','🔩','Vặn từ trên xuống'],
+ ['boltB','Vít trên thanh U dài bên phải','🔩','Vặn từ trên xuống'],
+ ['shortB','Thanh chữ U ngắn','🟨','Chân khớp lỗ giữa thanh đỏ'],
+ ['boltC','Vít chân thanh U ngắn','🔩','Vặn từ trên xuống qua lỗ giữa'],
+ ['braceB','Thanh đỏ 3 lỗ phía sau','🟥','Áp sát thân U ngắn tại lỗ giữa; hai lỗ ngoài để lắp thanh L'],
+ ['boltD','Vít nối thanh đỏ phía sau','🔩','Bắt qua mặt sau tại lỗ giữa'],
+ ['angleA','Thanh chữ L đỏ bên trái','🟥','Chân dưới hướng về phía trước, song song thanh U vàng'],
+ ['boltE','Vít thanh L bên trái','🔩','Bắt xuyên mối ghép lỗ ngoài bên trái'],
+ ['angleB','Thanh chữ L đỏ bên phải','🟥','Chân dưới tạo bệ đỡ máy phát điện'],
+ ['boltF','Vít thanh L bên phải','🔩','Bắt xuyên mối ghép lỗ ngoài bên phải'],
+ ['shortA','Thanh chữ U dài đỡ đèn LED','🟨','Chân và đầu song song với hai thanh U dài'] ]},
+{title:'Bước 2. Lắp đèn LED với dây dẫn điện',description:'Lắp đèn LED với dây dẫn điện và dùng băng dính điện để cố định đèn LED với đầu dây dẫn điện.',task:'Nối dây màu đỏ với chân dài của đèn LED và dây màu đen với chân ngắn. Cố định các đầu nối bằng băng dính điện. Các chi tiết được lắp tại khu vực chuẩn bị bên cạnh khung.',reference:'Theo Hình 5 – sách giáo khoa.',parts:[['led','Đèn LED','🔴','Chân dài và chân ngắn'],['redWire','Dây màu đỏ','🔴','Nối chân dài'],['blackWire','Dây màu đen','⚫','Nối chân ngắn'],['tape','Băng dính điện','⬛','Cố định đầu nối']]},
+{title:'Bước 3. Gắn máy phát điện và đèn LED',description:'Gắn cố định máy phát điện lên khung giá đỡ và dùng băng dính 2 mặt để gắn đèn LED lên khung giá đỡ.',task:'Đặt máy phát điện nằm ngang trên hai chân thanh chữ L đỏ đã tạo thành bệ đỡ, cánh quạt hướng ra phía trước. Gắn đèn LED đã nối dây lên thanh đỡ thấp, sau đó cố định bằng băng dính 2 mặt.',reference:'Theo Hình 6 – sách giáo khoa.',parts:[['generator','Máy phát điện cánh quạt','🌬️','Gắn trên hai thanh cao'],['mountLED','Cụm đèn LED đã nối dây','🔴','Gắn lên thanh đỡ thấp'],['adhesive','Băng dính 2 mặt','⬜','Cố định đèn LED']]},
+{title:'Bước 4. Kiểm tra hoạt động của mô hình',description:'Kiểm tra lại các mối ghép, sự chắc chắn của mô hình và vị trí nối dây dẫn điện với các chân của đèn LED.',task:'Em hãy kiểm tra mô hình, lần lượt quan sát ở ba điều kiện: không có gió, ít gió và gió mạnh. Ghi nhận trạng thái của đèn LED.',reference:'Theo Bước 4 – sách giáo khoa.',parts:[]}];
+const completed=new Set(),objects=new Map(),visited=new Set(),assemblyOrder=[];let stage=0,highest=0,selected=null,ghost=null,rotor=null,wind=0,spinRemaining=0,drag=null,dragPointerMoved=false;
+const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
+function parts(){return stages[stage].parts}function available(id){return parts().some(p=>p[0]===id)&&!completed.has(id)}
+function clearGhost(){if(ghost){scene.remove(ghost);ghost=null}}
+function mark(g,id){g.userData.partId=id;g.traverse(o=>{if(o.isMesh)o.userData.partId=id});return g}
+function makeObject(id){let g=makers[id]();mark(g,id);return g}
+function setStatus(t){$('status').textContent=t}
+function rebuild(){for(let g of objects.values())scene.remove(g);objects.clear();rotor=null;clearGhost();
+ for(const s of stages.slice(0,stage+1))for(const [id] of s.parts){if(!completed.has(id))continue;if(id==='led'&&stage>=2&&completed.has('mountLED'))continue;
+ let g=makeObject(id);g.position.set(...(completed.has(id)?targets[id]:[-3.15,1.2,1.65]));scene.add(g);objects.set(id,g);if(id==='generator')rotor=g.userData.rotor;}
+ // Mounted LED replaces the bench LED. The cable is attached to the motor and LED in the finished model.
+ if(stage>=2&&completed.has('mountLED')){const g=objects.get('mountLED');if(g){g.rotation.z=-Math.PI/2;g.position.set(1.68,1.93,.86)}}
+ if(stage>=2){for(let id of ['redWire','blackWire','tape']){const g=objects.get(id);if(g)g.visible=!completed.has('mountLED')}}
+ if(stage>=2&&completed.has('generator')&&completed.has('mountLED')){
+ const cab=group();wire(cab,[[.15,4.89,.40],[.9,4.25,.25],[2.25,3.02,.3],[2.33,2.34,.6],[1.73,1.85,.84]],dark,.039);
+ wire(cab,[[.04,4.87,.40],[.85,4.15,.20],[2.15,2.94,.27],[2.25,2.26,.57],[1.69,1.84,.87]],red,.024);
+ mark(cab,'mountLED');scene.add(cab);objects.set('cableDisplay',cab)}
+ showGhost();updateLED();}
+function showGhost(){clearGhost();if(!selected||!available(selected))return;ghost=makeObject(selected);ghost.position.set(...targets[selected]);ghost.traverse(o=>{if(o.isMesh)o.material=ghostMat});scene.add(ghost)}
+function select(id){if(!available(id))return;const next=parts().find(p=>!completed.has(p[0]));if(next&&next[0]!==id){setStatus('Em hãy lắp '+next[1]+' trước. Các chi tiết cần được lắp theo trình tự để không bị lơ lửng.');return}selected=id;showGhost();renderParts();setStatus('Đã chọn: '+parts().find(p=>p[0]===id)[1]+'. Kéo chi tiết từ danh sách vào vị trí được đánh dấu để lắp ghép.');}
+function place(id){if(!available(id))return; // The part always snaps to its single predefined textbook location.
+ // Only allow the next required piece, to keep the physical assembly order clear.
+ const next=parts().find(p=>!completed.has(p[0]));if(next&&next[0]!==id){setStatus('Em hãy lắp '+next[1]+' trước để thực hiện đúng trình tự.');return}
+ completed.add(id);assemblyOrder.push(id);selected=null;rebuild();renderParts();updateProgress();const done=parts().every(p=>completed.has(p[0]));setStatus(done?'Em đã hoàn thành bước này. Hãy chuyển sang bước tiếp theo.':'Đã lắp đúng vị trí. Em hãy tiếp tục với chi tiết tiếp theo.');}
+function removeLast(id){
+ if(!completed.has(id))return;
+ const last=assemblyOrder[assemblyOrder.length-1];
+ if(last!==id){setStatus('Để giữ mô hình chắc chắn, em hãy tháo các chi tiết lắp sau trước. Chi tiết cần tháo trước: '+(stages.flatMap(s=>s.parts).find(p=>p[0]===last)?.[1]||last)+'.');return}
+ completed.delete(id);assemblyOrder.pop();selected=null;
+ // Going backwards invalidates any subsequent assembly stages and observations.
+ const partStage=stages.findIndex(s=>s.parts.some(p=>p[0]===id));
+ if(partStage>=0&&stage>partStage)stage=partStage;
+ highest=Math.min(highest,stage);visited.clear();wind=0;$('speed').value='0';$('inspection').checked=false;$('finish').style.display='none';
+ rebuild();renderUI();setStatus('Đã đưa chi tiết về danh sách vật liệu. Em có thể kéo chi tiết để lắp lại.');
+}
+function renderParts(){const root=$('parts');root.innerHTML='';$('partsNote').style.display=parts().length?'block':'none';if(!parts().length){root.innerHTML='<p style="font-size:13px">Mô hình đã được lắp ráp. Em hãy kiểm tra hoạt động của mô hình.</p>';return}
+ for(const [id,name,emoji,detail] of parts()){const done=completed.has(id),item=document.createElement('div');item.className='part'+(done?' done':'')+(selected===id?' selected':'')+(!done&&parts().find(p=>!completed.has(p[0]))?.[0]!==id?' locked':'');item.tabIndex=0;item.setAttribute('role','button');item.setAttribute('aria-label',done?'Đã lắp '+name:'Chọn '+name);item.innerHTML=`<span class="symbol">${emoji}</span><span><b>${name}${done?' ✓':''}</b><small>${done?'Đã lắp đúng vị trí':detail}</small></span>`;
+ item.onclick=()=>{if(!done)select(id)};item.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();item.click()}};
+ item.onpointerdown=e=>{if(done)return;select(id);if(selected!==id)return;drag={id,startX:e.clientX,startY:e.clientY,moved:false,source:'inventory'};orbit.enabled=false};root.append(item)}}
+function updateProgress(){let n=parts().length,k=parts().filter(p=>completed.has(p[0])).length,pct=stage===3?visited.size/3*100:n?k/n*100:100;$('bar').style.width=pct+'%';$('counter').textContent=stage===3?`Đã quan sát ${visited.size}/3 điều kiện tốc độ gió`:`Đã lắp ${k}/${n} chi tiết trong bước này`;$('next').disabled=stage===3||k!==n;$('complete').disabled=stage!==3||visited.size<3||!$('inspection').checked}
+function tabs(){const el=$('steps');el.innerHTML='';stages.forEach((s,i)=>{let b=document.createElement('button');b.className='step'+(i===stage?' active':'');b.textContent='Bước '+(i+1);b.disabled=i>highest;b.onclick=()=>go(i);el.append(b)})}
+function renderUI(){const s=stages[stage];$('title').textContent=s.title;$('description').textContent=s.description;$('task').textContent=s.task;$('reference').textContent=s.reference;$('back').disabled=stage===0;$('next').classList.toggle('hidden',stage===3);$('complete').classList.toggle('hidden',stage!==3);$('wind').style.display=stage===3?'block':'none';tabs();renderParts();updateProgress();if(stage===3){renderObservations();setStatus('Em hãy kiểm tra mối ghép và thay đổi tốc độ gió để quan sát trạng thái đèn LED.')}else setStatus('Em hãy kéo một chi tiết từ danh sách vật liệu vào vị trí đánh dấu trên mô hình.')}
+function go(n){if(n<0||n>highest||n>3)return;stage=n;selected=null;rebuild();renderUI()}
+$('next').onclick=()=>{if($('next').disabled)return;highest=Math.max(highest,stage+1);go(stage+1)};$('back').onclick=()=>go(stage-1);
+$('reset').onclick=()=>{stage=0;highest=0;completed.clear();assemblyOrder.length=0;visited.clear();selected=null;wind=0;spinRemaining=0;$('speed').value='0';$('inspection').checked=false;$('finish').style.display='none';rebuild();renderUI()};
+function renderObservations(){const names=['Không có gió','Ít gió','Gió mạnh'];$('observations').innerHTML=names.map((s,i)=>`<tr><td>${s}</td><td>${visited.has(i)?(i===0?'Không sáng':i===1?'Quan sát: có thể sáng yếu':'Quan sát: có thể sáng rõ hơn'):'Chưa quan sát'}</td></tr>`).join('');$('reading').textContent=['Không có gió: cánh quạt đứng yên, đèn LED không sáng.','Ít gió: cánh quạt quay chậm. Quan sát đèn LED.','Gió mạnh: cánh quạt quay nhanh. Quan sát đèn LED.'][wind]}
+function updateLED(){for(const id of ['led','mountLED']){const g=objects.get(id);if(g)g.traverse(o=>{if(o.userData.isLED)o.material=stage===3&&wind>0?ledOn:ledOff})}}
+function setWind(v){wind=v;visited.add(v);updateLED();renderObservations();updateProgress();setStatus('Em hãy quan sát cánh quạt và đèn LED. Độ sáng trong mô phỏng mang tính minh họa, phụ thuộc vào tốc độ quay và cách nối dây trong thực tế.')}
+$('speed').oninput=e=>setWind(+e.target.value);$('inspection').onchange=updateProgress;
+$('complete').onclick=()=>{if($('complete').disabled)return;$('finish').style.display='block';setStatus('Em đã hoàn thành thực hành. Hãy giới thiệu sản phẩm và nêu nhận xét về hoạt động của mô hình.')};
+function coords(e){const r=renderer.domElement.getBoundingClientRect();mouse.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mouse,camera)}
+function screenTarget(id){const v=new THREE.Vector3(...targets[id]).project(camera),r=renderer.domElement.getBoundingClientRect();return{x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2}}
+function nearTarget(id,x,y){const t=screenTarget(id);return Math.hypot(t.x-x,t.y-y)<Math.max(65,Math.min(viewer.clientWidth*.16,115))}
+function drop(e,id){if(!available(id))return;if(nearTarget(id,e.clientX,e.clientY))place(id);else setStatus('Vị trí chưa phù hợp. Em hãy đưa chi tiết đến đúng vị trí được đánh dấu.');rebuild()}
+function hitPart(e){coords(e);const hits=ray.intersectObjects([...objects.values()].filter(o=>o.visible),true);for(const hit of hits){let o=hit.object;while(o&&!o.userData.partId)o=o.parent;if(o&&o.userData.partId)return hit.object.userData.isRotor?'rotor':o.userData.partId}return null}
+let pointerStart=null,modelDrag=null;
+renderer.domElement.addEventListener('pointerdown',e=>{
+ pointerStart={x:e.clientX,y:e.clientY};
+ const id=hitPart(e);
+ if(id&&id!=='rotor'&&completed.has(id)){
+   modelDrag={id,startX:e.clientX,startY:e.clientY,moved:false};
+ }
+});
+window.addEventListener('pointermove',e=>{
+ if(drag&&Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>8)drag.moved=true;
+ if(modelDrag&&Math.hypot(e.clientX-modelDrag.startX,e.clientY-modelDrag.startY)>8){
+   modelDrag.moved=true;orbit.enabled=false;
+   renderer.domElement.style.cursor='grabbing';
+ }
+});
+window.addEventListener('pointerup',e=>{
+ if(drag){const d=drag;drag=null;orbit.enabled=true;if(d.moved&&d.source==='inventory')drop(e,d.id)}
+ if(modelDrag){const d=modelDrag;modelDrag=null;orbit.enabled=true;renderer.domElement.style.cursor='';
+   if(d.moved){const r=$('parts').getBoundingClientRect();
+     if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)removeLast(d.id);
+     else setStatus('Để tháo chi tiết, em hãy kéo chi tiết về khu vực “Chi tiết, vật liệu và dụng cụ”.');
+   }
+ }
+});
+renderer.domElement.addEventListener('click',e=>{
+ if(pointerStart&&Math.hypot(e.clientX-pointerStart.x,e.clientY-pointerStart.y)>8)return;
+ const id=hitPart(e);
+ if(id==='rotor'&&completed.has('generator')&&rotor){spinRemaining+=Math.PI*2;setStatus('Cánh quạt quay một vòng. Em hãy quan sát chuyển động của cánh quạt.');}
+});
+function resize(){let w=viewer.clientWidth,h=viewer.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}new ResizeObserver(resize).observe(viewer);resize();
+let prev=performance.now();function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-prev)/1000);prev=now;
+ if(rotor){if(spinRemaining>0){const turn=Math.min(spinRemaining,dt*7);rotor.rotation.z-=turn;spinRemaining-=turn}else if(stage===3&&wind>0)rotor.rotation.z-=wind*dt*2.6}
+ orbit.update();renderer.render(scene,camera)}requestAnimationFrame(frame);rebuild();renderUI();
+</script></body></html>
